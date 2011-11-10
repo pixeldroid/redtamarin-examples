@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="red-examples" default="-usage" basedir=".">
+
+<description>
+Builds projectors from redtamarin example files.
+</description>
+	
+	<property file="build.properties"/>
+	<property name="source" location="${basedir}/source"/>
+	<property name="target" location="${basedir}/target"/>
+	<property name="bin" location="${basedir}/bin"/>
+	
+	<condition property="isWin" value="true">
+		<os family="windows"/>
+	</condition>
+	
+	<macrodef name="asc">
+		<attribute name="dir" default="${target}"/>
+		<attribute name="redshell" default="${ASC_HOME}/redshell"/>
+		<attribute name="options-default" default="-AS3 -strict -optimize -import ${ASC_HOME}/builtin.abc -import ${ASC_HOME}/toplevel.abc"/>
+		<attribute name="options-exe" default="-exe @{redshell}"/>
+		<attribute name="options" default=""/>
+		<attribute name="file" default=""/>
+		<sequential>
+			<echo message="- - asc macro - -"/>
+			<echo message="compiling '@{file}'"/>
+			
+			<java 
+				jar="${ASC_HOME}/asc.jar"
+				dir="@{dir}"
+				fork="true"
+				failonerror="true"
+				>
+				<arg line="@{options-default}"/>
+				<arg line="@{options}"/>
+				<arg line="@{options-exe}"/>
+				<arg line="@{file}"/>
+			</java>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="abcdump">
+		<attribute name="file"/>
+		<attribute name="options" default=""/>
+		<sequential>
+			<echo message="- - abcdump macro - -"/>
+			<echo message="analyzing '@{file}'"/>
+			
+			<exec osfamily="windows" executable="cmd">
+				<arg line='/c ${ASC_HOME}/abcdump @{options} @{file}'/>
+			</exec>
+			
+			<exec osfamily="mac" executable="${ASC_HOME}/abcdump">
+				<arg line="@{options} @{file}"/>
+			</exec>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="compc">
+		<attribute name="file"/>
+		<attribute name="options" default=""/>
+		<sequential>
+			<echo message="- - compc macro - -"/>
+			<echo message="creating lib from '@{file}'"/>
+			
+			<java 
+				jar="${FLEX_HOME}/lib/compc.jar"
+				dir="${FLEX_HOME}/frameworks"
+				fork="true"
+				failonerror="true"
+				>
+				<arg line="@{options}"/>
+				<arg value="-include-sources=@{file}"/>
+			</java>
+		</sequential>
+	</macrodef>
+
+
+	<target name="-usage"> <!-- not providing description to avoid showing up in -projecthelp -->
+		<echo message="${ant.project.name}" />
+		<java classname="org.apache.tools.ant.Main">
+			<arg value="-projecthelp" />
+		</java>
+	</target>
+    
+    <target name="release-binary">
+    	<copy file="${target}/${binary.basename}.exe" todir="${bin}" overwrite="true"/>
+    </target>
+    
+    <target name="tweak-binary" unless="isWin" depends="release-binary">
+        <!-- *nix specific: extension change and chmod to add execute privilege -->
+        <move file="${bin}/${binary.basename}.exe" tofile="${bin}/${binary.basename}" overwrite="true"/>
+        <chmod file="${bin}/${binary.basename}" perm="+x"/>
+    </target>
+
+
+    <target name="clean" description="empties target dir">
+        <delete includeemptydirs="true">
+        	<fileset dir="${target}" includes="**/*"/>
+        </delete>
+    </target>
+    
+    <target name="build" description="builds all working examples"
+    	depends="build-error, build-sysinfo, build-e4x, build-package, build-include, build-import"/>
+
+
+    <target name="build-error" description="builds the error example">
+    	<antcall target="clean"/>
+    	<copy file="${source}/error/error.as" todir="${target}"/>
+        <asc file="error.as"/>
+        <antcall target="tweak-binary"><param name="binary.basename" value="error"/></antcall>
+    </target>
+
+    <target name="build-sysinfo" description="builds the sysinfo example">
+    	<antcall target="clean"/>
+    	<copy file="${source}/sysinfo/sysinfo.as" todir="${target}"/>
+        <asc file="sysinfo.as"/>
+        <antcall target="tweak-binary"><param name="binary.basename" value="sysinfo"/></antcall>
+    </target>
+
+    <target name="build-e4x" description="builds the e4x example">
+    	<antcall target="clean"/>
+    	<copy file="${source}/e4x/e4x.as" todir="${target}"/>
+        <asc file="e4x.as"/>
+        <antcall target="tweak-binary"><param name="binary.basename" value="e4x"/></antcall>
+    </target>
+
+    <target name="build-package" description="builds the package example">
+    	<antcall target="clean"/>
+    	<copy todir="${target}">
+    		<fileset dir="${source}/package" includes="**/*"/>
+    	</copy>
+        <asc file="package.as"/>
+        <antcall target="tweak-binary"><param name="binary.basename" value="package"/></antcall>
+    </target>
+    
+    <target name="build-include" description="builds the include example">
+    	<antcall target="clean"/>
+    	<copy todir="${target}">
+    		<fileset dir="${source}/_common" includes="**/*"/>
+    		<fileset dir="${source}/include" includes="**/*"/>
+    	</copy>
+        <asc file="include.as"/>
+        <antcall target="tweak-binary"><param name="binary.basename" value="include"/></antcall>
+    </target>
+    
+    <target name="build-import" description="builds the import example using a dependency include file">
+    	<antcall target="clean"/>
+    	<copy todir="${target}">
+    		<fileset dir="${source}/_common" includes="**/*"/>
+    		<fileset dir="${source}/import" includes="**/*"/>
+    	</copy>
+        <asc file="import.as" options="-in ${target}/dependencies.as"/>
+        <antcall target="tweak-binary"><param name="binary.basename" value="import"/></antcall>
+    </target>
+    
+    <target name="build-import-a" description="builds non-working import example trying abc import from asc-compiled dependency file">
+    	<antcall target="clean"/>
+    	<copy todir="${target}">
+    		<fileset dir="${source}/_common" includes="**/*"/>
+    		<fileset dir="${source}/import" includes="**/*"/>
+    	</copy>
+        <!--
+        the binary created below compiles successfully but 
+        bails at runtime with a ReferenceError: Error #1065
+        ..but calling redshell with the two abc files works fine:
+        	cd target/
+        	redshell dependencies.abc import.abc
+        similar issue here: http://blog.eversonalves.com.br/2011/02/05/command-line-scripts-in-actionscript-with-classes-using-redtamarin/
+        -->
+        <asc file="dependencies.as" options-exe=""/>
+        <asc file="import.as" options="-import ${target}/dependencies.abc"/>
+        <antcall target="tweak-binary"><param name="binary.basename" value="import"/></antcall>
+    </target>
+    
+    <target name="build-import-b" description="builds non-working import example trying abc import from compc-compiled, abcdumped dependency file">
+    	<antcall target="clean"/>
+    	<copy todir="${target}">
+    		<fileset dir="${source}/_common" includes="**/*"/>
+    		<fileset dir="${source}/import" includes="**/*"/>
+    	</copy>
+        <!--
+        the binary created below compiles successfully but 
+        bails at runtime with a ReferenceError: Error #1065
+        ..but calling redshell with the two abc files works fine:
+        	cd target/
+        	redshell dependencies.abc import-as3only.abc
+        similar issue here: http://blog.eversonalves.com.br/2011/02/05/command-line-scripts-in-actionscript-with-classes-using-redtamarin/
+        -->
+    	<compc file="${target}/dependencies-as3only.as" options="-directory -output=${target}/dependencies-swc"/>
+    	<abcdump file="${target}/dependencies-swc/library.swf" options="-a"/>
+        <!-- compc will add a ref to Sprite, which ends up extracted as library.abc; our library is library1.abc -->
+        <copy file="${target}/dependencies-swc/library1.abc" tofile="${target}/dependencies.abc" />
+        <asc file="import-as3only.as" options="-import ${target}/dependencies.abc"/>
+        <antcall target="tweak-binary"><param name="binary.basename" value="import-as3only"/></antcall>
+    </target>
+    
+</project>
