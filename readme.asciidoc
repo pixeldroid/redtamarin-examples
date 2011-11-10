@@ -1,0 +1,21 @@
+redtamarin examples
+===================
+
+this project aims to provide short, helpful examples of actionscript for the 
+redtamarin shell.
+
+please see the individual examples for example-specific details.
+
+pre-requisites
+--------------
+- redtamarin: download and install redtamarin for your machine. 
+  there are great instructions at the 
+  http://code.google.com/p/redtamarin/wiki/GettingStarted[project homepage]
+- ant: the examples can all be built via the main build file if you have a 
+  recent version of http://ant.apache.org/[ant] installed (1.8.0+). 
+  The default task lists all the build targets (just type `ant`).
+
+[TIP]
+all examples are compiled with `asc.jar`. the general pattern is:
+`$ <ASC_HOME>/asc -AS3 -strict -optimize -import <ASC_HOME>/builtin.abc -import <ASC_HOME>/toplevel.abc -exe <ASC_HOME>/redshell myfile.as`
+
