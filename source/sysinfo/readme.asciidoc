@@ -1,0 +1,4 @@
+= sysinfo example
+
+this simple example shows off integration with native code provided via the 
+http://code.google.com/p/redtamarin/wiki/AVMPlus[AVMPlus] package.

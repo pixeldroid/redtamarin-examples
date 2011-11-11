@@ -97,13 +97,20 @@ Builds projectors from redtamarin example files.
 
     <target name="clean" description="empties target dir">
         <delete includeemptydirs="true">
-        	<fileset dir="${target}" includes="**/*"/>
+        	<fileset dir="${target}" includes="**/*" excludes="readme.txt"/>
         </delete>
     </target>
     
     <target name="build" description="builds all working examples"
-    	depends="build-error, build-sysinfo, build-e4x, build-package, build-include, build-import"/>
+    	depends="build-args, build-error, build-sysinfo, build-e4x, build-package, build-include, build-import"/>
 
+
+    <target name="build-args" description="builds the args example">
+    	<antcall target="clean"/>
+    	<copy file="${source}/args/args.as" todir="${target}"/>
+        <asc file="args.as"/>
+        <antcall target="tweak-binary"><param name="binary.basename" value="args"/></antcall>
+    </target>
 
     <target name="build-error" description="builds the error example">
     	<antcall target="clean"/>

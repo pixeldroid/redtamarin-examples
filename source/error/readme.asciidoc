@@ -1,0 +1,6 @@
+= error examples
+
+uncaught errors will halt execution in the shell and exit with a non-zero 
+exit code.
+
+built-in or custom errors can be thrown and caught just as in as3.

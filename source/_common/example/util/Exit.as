@@ -1,23 +1,27 @@
 
 package example.util
 {
+	import C.stdlib.EXIT_SUCCESS;
+	import C.stdlib.EXIT_FAILURE;
 	import avmplus.System;
 	
 	public class Exit
 	{
-		static public const SUCCESS:int = 0;
-		static public const FAILURE:int = 1;
-		
 		static public function success(message:String=null):void
 		{
-			if (message) trace(message);
-			System.exit(SUCCESS);
+			exit(message, EXIT_SUCCESS);
 		}
 		
 		static public function failure(message:String=null):void
 		{
+			exit(message, EXIT_FAILURE);
+		}
+		
+		static private function exit(message:String=null, code:int=-1):void
+		{
 			if (message) trace(message);
-			System.exit(FAILURE);
+			trace("exiting with code", code);
+			System.exit(code);
 		}
 	}
 }
