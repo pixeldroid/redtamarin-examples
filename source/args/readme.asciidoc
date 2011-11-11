@@ -1,0 +1,8 @@
+= command line argument examples
+
+=== basic concepts:
+- command line arguments are String values stored in the `avmplus.System.argv` 
+  Array.
+- `argv[0]` (executable name) is not accessible, but the value it holds can be 
+  retrieved from `avmplus.System.programFilename`
+
