@@ -1,13 +1,12 @@
-redtamarin examples
-===================
+= redtamarin examples
 
 this project aims to provide short, helpful examples of actionscript for the 
 redtamarin shell.
 
 please see the individual examples for example-specific details.
 
-pre-requisites
---------------
+=== pre-requisites
+- *java*: the actionscript compiler used by redtamarin is an executable jar
 - *redtamarin*: download and install redtamarin for your machine. 
   there are great instructions at the 
   http://code.google.com/p/redtamarin/wiki/GettingStarted[project homepage]
@@ -15,15 +14,32 @@ pre-requisites
   recent version of http://ant.apache.org/[ant] installed (1.8.0+). 
   The default task lists all the build targets (just type `ant`).
 
-
-[TIP]
-.*_compiling on the command line_*
-=====================================================================
+=== compiling on the command line
 all examples are compiled with `asc.jar`.
 a common pattern is:
 
 --------------
-$ <ASC_HOME>/asc -AS3 -strict -optimize -import <ASC_HOME>/builtin.abc -import <ASC_HOME>/toplevel.abc -exe <ASC_HOME>/redshell myfile.as
+$ java -jar asc.jar [options] [abc imports] [projector shell] yourfile.as
+--------------
+
+[TIP]
+=====================================================================
+this can get rather tedious to type, and the only part that changes 
+much is the source file on the end, so you might create an alias:
+
+.~/.profile
+--------------
+export ASC_HOME=/opt/redtamarin/tools/bin/
+ASC_OPTS="-AS3 -strict -optimize"
+ASC_IMPS="-import $ASC_HOME/builtin.abc -import $ASC_HOME/toplevel.abc"
+ASC_SHELL="-exe $ASC_HOME/redshell"
+alias asce="java -jar $ASC_HOME/asc.jar $ASC_OPTS $ASC_IMPS $ASC_SHELL"
+--------------
+
+and then you can type the much simpler:
+
+--------------
+$ asce yourfile.as
 --------------
 =====================================================================
 
