@@ -1,0 +1,18 @@
+= e4x examples
+
+tamarin supports the same e4x syntax found in actionscript3.
+
+=== basic concepts:
+- `.` dot operator selects children by name
+- `..` double dot operator selects children by name at any depth
+- `.@` at operator selects attribute by name
+- `.()` parentheses allow insertion of custom boolean filters
+
+selectors return XMLList values, which have function-style properties (e.g. `length()`),
+and can be numerically indexed like an Array with the `[]` operator.
+
+=== references:
+- http://www.actionscript.org/forums/showthread.php3?t=195916
+- http://dispatchevent.org/roger/as3-e4x-rundown/
+- http://www.senocular.com/flash/tutorials/as3withflashcs3/?page=4
+- http://www.ecma-international.org/publications/standards/Ecma-357.htm
