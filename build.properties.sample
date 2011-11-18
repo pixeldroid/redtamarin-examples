@@ -1,0 +1,9 @@
+
+# location of asc.jar and abc files for import:
+# e.g. win: ASC_HOME=C:/redtamarin/redtamarin-tools/bin
+#      nix: ASC_HOME=/redtamarin/redtamarin-tools/bin
+ASC_HOME=
+
+#location of Flex SDK (only needed for some experimental examples)
+FLEX_HOME=
+

@@ -1,2 +1,3 @@
 /target/*
 !/target/readme.txt
+/build.properties
