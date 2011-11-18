@@ -11,11 +11,12 @@ please see the individual examples for example-specific details.
   there are great instructions at the 
   http://code.google.com/p/redtamarin/wiki/GettingStarted[project homepage]
 - *ant*: the examples can all be built via the main build file if you have a 
-  recent version of http://ant.apache.org/[ant] installed (1.8.0+). 
+  recent version of http://ant.apache.org/[ant] installed. 
   The default task lists all the build targets (just type `ant`).
 
 === compiling on the command line
-all examples are compiled with `asc.jar`.
+all the examples are compiled with `asc.jar`.
+
 a common pattern is:
 
 --------------
@@ -27,7 +28,7 @@ $ java -jar asc.jar [options] [abc imports] [projector shell] yourfile.as
 this can get rather tedious to type, and the only part that changes 
 much is the source file on the end, so you might create an alias:
 
-.nix (.profile for bash)
+.*nix* (e.g. http://tldp.org/LDP/Bash-Beginners-Guide/html/sect_03_01.html#sect_03_01_02[.profile] for bash)
 --------------
 export ASC_HOME=/opt/redtamarin/tools/bin/
 ASC_OPTS="-AS3 -strict -optimize"
@@ -38,7 +39,7 @@ alias asce="java -jar $ASC_HOME/asc.jar $ASC_OPTS $ASC_IMPS $ASC_SHELL"
 
 _or_
 
-.win (http://portableapps.com/apps/utilities/command_prompt_portable[commandprompt portable] for cmd.exe)
+.*win* (e.g. http://portableapps.com/apps/utilities/command_prompt_portable[commandprompt portable] for cmd.exe)
 --------------
 SET ASC_HOME=C:\redtamarin\redtamarin-tools\bin
 SET PATH=%ASC_HOME%;%PATH%
