@@ -15,11 +15,29 @@ Builds projectors from redtamarin example files.
 		<os family="windows"/>
 	</condition>
 	
+	<!-- Set convenience suffixes for command line tools across platforms. -->
+	<condition property="cli" value=".exe">
+		<os family="windows"/>
+	</condition>
+	<condition property="cli" value="">
+		<and>
+			<os family="unix"/>
+			<os family="mac"/>
+		</and>
+	</condition>
+	<condition property="cli" value="">
+		<and>
+			<os family="unix"/>
+			<not><os family="mac"/></not>
+		</and>
+	</condition>
+	
+	<!-- Macros. So handy. -->
 	<macrodef name="asc">
 		<attribute name="dir" default="${target}"/>
 		<attribute name="redshell" default="${ASC_HOME}/redshell"/>
 		<attribute name="options-default" default="-AS3 -strict -optimize -import ${ASC_HOME}/builtin.abc -import ${ASC_HOME}/toplevel.abc"/>
-		<attribute name="options-exe" default="-exe @{redshell}"/>
+		<attribute name="options-exe" default="-exe @{redshell}${cli}"/>
 		<attribute name="options" default=""/>
 		<attribute name="file" default=""/>
 		<sequential>
@@ -85,13 +103,14 @@ Builds projectors from redtamarin example files.
 	</target>
     
     <target name="release-binary">
-    	<copy file="${target}/${binary.basename}.exe" todir="${bin}" overwrite="true"/>
+        <move file="${target}/${binary.basename}.exe" tofile="${target}/${binary.basename}${cli}" overwrite="true"/>
+	    <antcall target="tweak-binary"><param name="binary.filepath" value="${target}/${binary.basename}${cli}"/></antcall>
+    	<copy file="${target}/${binary.basename}${cli}" todir="${bin}" overwrite="true"/>
     </target>
     
-    <target name="tweak-binary" unless="isWin" depends="release-binary">
-        <!-- *nix specific: extension change and chmod to add execute privilege -->
-        <move file="${bin}/${binary.basename}.exe" tofile="${bin}/${binary.basename}" overwrite="true"/>
-        <chmod file="${bin}/${binary.basename}" perm="+x"/>
+    <target name="tweak-binary" unless="isWin">
+        <!-- *nix specific: chmod to add execute privilege -->
+        <chmod file="${binary.filepath}" perm="+x"/>
     </target>
 
 
@@ -109,28 +128,28 @@ Builds projectors from redtamarin example files.
     	<antcall target="clean"/>
     	<copy file="${source}/args/args.as" todir="${target}"/>
         <asc file="args.as"/>
-        <antcall target="tweak-binary"><param name="binary.basename" value="args"/></antcall>
+        <antcall target="release-binary"><param name="binary.basename" value="args"/></antcall>
     </target>
 
     <target name="build-error" description="builds the error example">
     	<antcall target="clean"/>
     	<copy file="${source}/error/error.as" todir="${target}"/>
         <asc file="error.as"/>
-        <antcall target="tweak-binary"><param name="binary.basename" value="error"/></antcall>
+        <antcall target="release-binary"><param name="binary.basename" value="error"/></antcall>
     </target>
 
     <target name="build-sysinfo" description="builds the sysinfo example">
     	<antcall target="clean"/>
     	<copy file="${source}/sysinfo/sysinfo.as" todir="${target}"/>
         <asc file="sysinfo.as"/>
-        <antcall target="tweak-binary"><param name="binary.basename" value="sysinfo"/></antcall>
+        <antcall target="release-binary"><param name="binary.basename" value="sysinfo"/></antcall>
     </target>
 
     <target name="build-e4x" description="builds the e4x example">
     	<antcall target="clean"/>
     	<copy file="${source}/e4x/e4x.as" todir="${target}"/>
         <asc file="e4x.as"/>
-        <antcall target="tweak-binary"><param name="binary.basename" value="e4x"/></antcall>
+        <antcall target="release-binary"><param name="binary.basename" value="e4x"/></antcall>
     </target>
 
     <target name="build-package" description="builds the package example">
@@ -139,7 +158,7 @@ Builds projectors from redtamarin example files.
     		<fileset dir="${source}/package" includes="**/*"/>
     	</copy>
         <asc file="package.as"/>
-        <antcall target="tweak-binary"><param name="binary.basename" value="package"/></antcall>
+        <antcall target="release-binary"><param name="binary.basename" value="package"/></antcall>
     </target>
     
     <target name="build-include" description="builds the include example">
@@ -149,7 +168,7 @@ Builds projectors from redtamarin example files.
     		<fileset dir="${source}/include" includes="**/*"/>
     	</copy>
         <asc file="include.as"/>
-        <antcall target="tweak-binary"><param name="binary.basename" value="include"/></antcall>
+        <antcall target="release-binary"><param name="binary.basename" value="include"/></antcall>
     </target>
     
     <target name="build-import" description="builds the import example using a dependency include file">
@@ -159,7 +178,7 @@ Builds projectors from redtamarin example files.
     		<fileset dir="${source}/import" includes="**/*"/>
     	</copy>
         <asc file="import.as" options="-in ${target}/dependencies.as"/>
-        <antcall target="tweak-binary"><param name="binary.basename" value="import"/></antcall>
+        <antcall target="release-binary"><param name="binary.basename" value="import"/></antcall>
     </target>
     
     <target name="build-import-a" description="builds non-working import example trying abc import from asc-compiled dependency file">
@@ -178,7 +197,7 @@ Builds projectors from redtamarin example files.
         -->
         <asc file="dependencies.as" options-exe=""/>
         <asc file="import.as" options="-import ${target}/dependencies.abc"/>
-        <antcall target="tweak-binary"><param name="binary.basename" value="import"/></antcall>
+        <antcall target="release-binary"><param name="binary.basename" value="import"/></antcall>
     </target>
     
     <target name="build-import-b" description="builds non-working import example trying abc import from compc-compiled, abcdumped dependency file">
@@ -200,7 +219,7 @@ Builds projectors from redtamarin example files.
         <!-- compc will add a ref to Sprite, which ends up extracted as library.abc; our library is library1.abc -->
         <copy file="${target}/dependencies-swc/library1.abc" tofile="${target}/dependencies.abc" />
         <asc file="import-as3only.as" options="-import ${target}/dependencies.abc"/>
-        <antcall target="tweak-binary"><param name="binary.basename" value="import-as3only"/></antcall>
+        <antcall target="release-binary"><param name="binary.basename" value="import-as3only"/></antcall>
     </target>
     
 </project>
